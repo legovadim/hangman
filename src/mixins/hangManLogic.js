@@ -7,7 +7,7 @@ Vue.mixin({
         'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
         't', 'u', 'v', 'w', 'x', 'y', 'z'],
       hiddenWordList: ['knowledgeable', 'license', 'lush', 'move', 'squealing', 'flimsy', 'vengeful', 'science', 'reward', 'pickle', 'terrific', 'hot'],
-      requestWordUrl: 'https://random-word-api.herokuapp.com//word?key=343Y32YM&number=1'
+      requestWordUrl: 'https://random-word-api.herokuapp.com/word?key='
 
     }
   },
@@ -56,11 +56,13 @@ Vue.mixin({
     fetchTheWord () {
       this.loadingDialog = true
       return new Promise(resolve => {
-        Vue.axios.get(this.requestWordUrl).then((response) => {
-          this.hiddenWord = response.data[0]
-          resolve(true)
-          console.log(this.hiddenWord)
-          this.loadingDialog = false
+        Vue.axios.get(`${'https://cors-anywhere.herokuapp.com/'}https://random-word-api.herokuapp.com/key?`).then((response) => {
+          Vue.axios.get(this.requestWordUrl + response.data + '&number=1').then((response) => {
+            this.hiddenWord = response.data[0]
+            resolve(true)
+            console.log(this.hiddenWord)
+            this.loadingDialog = false
+          })
         })
       })
     },
