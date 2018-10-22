@@ -57,13 +57,14 @@ export default {
       fixed: false,
       activeClass: 'listActive',
       items: [{
-        icon: 'bubble_chart',
+        icon: 'accessibility',
         title: 'Player VS Computer',
         path: '/pvc'
       },
       {
-        icon: 'bubble_chart',
-        title: 'Computer VS Player'
+        icon: 'computer',
+        title: 'Computer VS Player',
+        path: '/cvp'
       }],
       miniVariant: false,
       right: true,

@@ -2,8 +2,16 @@
   <v-container fluid grid-list-md text-xs-center>
     <section>
         <v-layout row wrap class="gameArea">
-          <v-flex xs12 class="headline"> Use the letters below to guess the hidden word! </v-flex>
-          <v-flex xs12> <v-btn small :color="checkLetter(letter)" :disabled="checkLetterDisable(letter)" v-for="(letter, i) in letters" :key="i" :ref="'letter_'+letter" @click=" () => findLetter(letter)">{{letter}}</v-btn> </v-flex>
+          <v-flex xs12 class="headline"> Computer is gonna play vs you! Enter the word! (He closed the eyes) </v-flex>
+        <v-flex xs12>
+          <v-text-field
+            label="a-Z letters"
+            outline
+            class="wordInput"
+            v-model="usersWord"
+          ></v-text-field>
+          <v-btn color="info" @click="startTheGame()">Start the Game</v-btn>
+        </v-flex>
           <v-flex xs12>
             <div class="display-1 hiddenWord">
               {{ hiddenLetters }}
@@ -11,7 +19,7 @@
           </v-flex>
           <v-flex xs12>
             <div class="title hiddenWord">
-              Your lifes: {{ lifes }}
+              Computer's lifes: {{ lifes }}
             </div>
           </v-flex>
           <v-flex xs12>
@@ -24,7 +32,7 @@
         <v-dialog
           v-model="dialog"
           width="500"
-          persistent
+          persistent 
         >
           <v-card>
             <v-card-title
@@ -62,28 +70,57 @@ import './../mixins/hangManLogic'
 export default {
   data () {
     return {
-      gameType: 'pvc',
+      gameType: 'cvp',
       clickedLetters: [],
       hiddenLetters: '',
-      hiddenWord: '**********',
+      hiddenWord: '********',
       foundLettersPositions: [],
       lifes: 10,
       hangmanState: 0,
       dialog: false,
       gameResultTitle: {
-        'win': 'You won the game',
-        'lose': 'You lost the game'
+        'win': 'Computer won the game',
+        'lose': 'Computer lost your game'
       },
       gameResultBody: {
-        'win': 'You are clever!',
-        'lose': 'Don`t cry and try again'
+        'win': 'Try again!',
+        'lose': 'It was hard word'
       },
-      gameResult: 'win'
+      gameResult: '',
+      usersWord: ''
 
     }
   },
   methods: {
+    startTheGame () {
+      if (this.usersWord.length > 0) {
+        this.hiddenWord = this.usersWord
+        this.generateHiddenWord()
+        this.computerPlaying()
+      } else { alert('Enter the world please') }
+    },
+    async computerPlaying () {
+        // play untill result
+      while (this.gameResult === '') {
+        await this.makeTurn()
+      }
+    },
+    makeTurn () {
+      let randomLetter = this.letters[Math.floor(Math.random() * 25) + 0]
 
+      // Dont use the same words
+      while (this.checkLetter(randomLetter) === '') {
+        randomLetter = this.letters[Math.floor(Math.random() * 25) + 0]
+      }
+
+      this.findLetter(randomLetter)
+
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve(true)
+        }, 400)
+      })
+    }
   },
   beforeMount () {
     // fill the hidden word with spaces
@@ -120,9 +157,15 @@ a {
 }
 
 .imageFrame {
-      width: 548px;
+    width: 548px;
     height: 406px;
     overflow: hidden;
     margin: 0 auto;
 }
+
+.wordInput {
+    width: 250px;
+    margin: 0 auto;
+}
+
 </style>

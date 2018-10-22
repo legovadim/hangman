@@ -2,10 +2,9 @@
   <v-container fluid>
     <v-slide-y-transition mode="out-in">
       <v-layout column align-center>
-        <img src="@/assets/logo.png" alt="Vuetify.js" class="mb-5">
-        <blockquote>
-          &#8220; Please choose if you want to Play VS Computer or if you want Computer play VS You.&#8221;
-        </blockquote>
+        <div class="title mt-5">
+           Please choose if you want to play VS Computer or if you want Computer play VS You in the left panel.
+        </div>
       </v-layout>
     </v-slide-y-transition>
   </v-container>
