@@ -15,6 +15,9 @@
           value="true"
           v-for="(item, i) in items"
           :key="i"
+          @click=""
+          :to="item.path"
+          v-bind:class="[$route.path == item.path ? activeClass : '']"
         >
           <v-list-tile-action>
             <v-icon v-html="item.icon"></v-icon>
@@ -25,38 +28,22 @@
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
+
     <v-toolbar
       app
       :clipped-left="clipped"
     >
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-      <v-btn icon @click.stop="fixed = !fixed">
-        <v-icon>remove</v-icon>
-      </v-btn>
       <v-toolbar-title v-text="title"></v-toolbar-title>
       <v-spacer></v-spacer>
     </v-toolbar>
+
     <v-content>
       <router-view/>
     </v-content>
-    <v-navigation-drawer
-      temporary
-      :right="right"
-      v-model="rightDrawer"
-      fixed
-      app
-    >
-      <v-list>
-        <v-list-tile @click="right = !right">
-          <v-list-tile-action>
-            <v-icon>compare_arrows</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-title>Switch drawer (click me)</v-list-tile-title>
-        </v-list-tile>
-      </v-list>
-    </v-navigation-drawer>
+    
     <v-footer :fixed="fixed" app>
-      <span>&copy; 2017</span>
+      <span>&copy; 2018</span>
     </v-footer>
   </v-app>
 </template>
@@ -68,9 +55,11 @@ export default {
       clipped: true,
       drawer: true,
       fixed: false,
+      activeClass: 'listActive',
       items: [{
         icon: 'bubble_chart',
-        title: 'Player VS Computer'
+        title: 'Player VS Computer',
+        path: '/pvc'
       },
       {
         icon: 'bubble_chart',
@@ -85,3 +74,9 @@ export default {
   name: 'App'
 }
 </script>
+
+<style scoped>
+.listActive {
+  background: #e0e0e0;
+}
+</style>
