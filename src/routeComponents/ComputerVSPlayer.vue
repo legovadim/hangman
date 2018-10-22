@@ -124,7 +124,7 @@ export default {
   },
   beforeMount () {
     // fill the hidden word with spaces
-    this.generateHiddenWord()
+    // this.generateHiddenWord()
   }
 }
 </script>

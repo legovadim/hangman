@@ -52,6 +52,13 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+        <v-dialog v-model="loadingDialog" persistent max-width="100">
+          <v-card>
+            <v-card-text>
+                <v-progress-circular indeterminate :size="70" :width="7" color="primary"></v-progress-circular>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
     </section>
   </v-container>
 </template>
@@ -78,7 +85,8 @@ export default {
         'win': 'You are clever!',
         'lose': 'Don`t cry and try again'
       },
-      gameResult: 'win'
+      gameResult: 'win',
+      loadingDialog: false
 
     }
   },

@@ -6,7 +6,8 @@ Vue.mixin({
       letters: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
         'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
         't', 'u', 'v', 'w', 'x', 'y', 'z'],
-      hiddenWordList: ['knowledgeable', 'license', 'lush', 'move', 'squealing', 'flimsy', 'vengeful', 'science', 'reward', 'pickle', 'terrific', 'hot']
+      hiddenWordList: ['knowledgeable', 'license', 'lush', 'move', 'squealing', 'flimsy', 'vengeful', 'science', 'reward', 'pickle', 'terrific', 'hot'],
+      requestWordUrl: 'https://random-word-api.herokuapp.com//word?key=343Y32YM&number=1'
 
     }
   },
@@ -51,8 +52,20 @@ Vue.mixin({
         }
       }
     },
-    generateHiddenWord () {
-      if (this.gameType === 'pvc') this.hiddenWord = this.hiddenWordList[Math.floor(Math.random() * this.hiddenWordList.length) + 0]
+
+    fetchTheWord () {
+      this.loadingDialog = true
+      return new Promise(resolve => {
+        Vue.axios.get(this.requestWordUrl).then((response) => {
+          this.hiddenWord = response.data[0]
+          resolve(true)
+          console.log(this.hiddenWord)
+          this.loadingDialog = false
+        })
+      })
+    },
+    async generateHiddenWord () {
+      if (this.gameType === 'pvc') await this.fetchTheWord()
       this.hiddenLetters = ''
       for (let i = 0; i < this.hiddenWord.length; i++) {
         this.hiddenLetters += '_'
