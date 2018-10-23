@@ -84,7 +84,7 @@ Vue.mixin({
             let sortedLettersPositions = this.foundLettersPositions.sort((a, b) => b - a)
 
                 // check every returned array from wolframalpha
-            for (let id = 0; id < wolframArray.length - 1; id++) {
+            for (let id = 0; id < wolframArray.length; id++) {
               let lettersToCheck = wolframArray[id]
 
                 // filter letters we already know
