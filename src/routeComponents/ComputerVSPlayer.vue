@@ -60,6 +60,13 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+        <v-dialog v-model="loadingDialog" persistent max-width="100">
+          <v-card class="overflow-hidden">
+            <v-card-text>
+                <v-progress-circular indeterminate :size="70" :width="7" color="primary"></v-progress-circular>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
     </section>
   </v-container>
 </template>
@@ -71,12 +78,6 @@ export default {
   data () {
     return {
       gameType: 'cvp',
-      clickedLetters: [],
-      hiddenLetters: '',
-      hiddenWord: '********',
-      foundLettersPositions: [],
-      lifes: 10,
-      hangmanState: 0,
       dialog: false,
       gameResultTitle: {
         'win': 'Computer won the game',
@@ -86,14 +87,15 @@ export default {
         'win': 'Try again!',
         'lose': 'It was hard word'
       },
-      gameResult: '',
-      usersWord: ''
+      checkWolfram: false
 
     }
   },
   methods: {
     startTheGame () {
       if (this.usersWord.length > 0) {
+        this.usersWord = this.usersWord.toLowerCase()
+        this.checkWolfram = false
         this.hiddenWord = this.usersWord
         this.generateHiddenWord()
         this.computerPlaying()
@@ -105,15 +107,21 @@ export default {
         await this.makeTurn()
       }
     },
-    makeTurn () {
+    async makeTurn () {
       let randomLetter = this.letters[Math.floor(Math.random() * 25) + 0]
 
-      // Dont use the same words
+      // Dont use the same letters
       while (this.checkLetter(randomLetter) === '') {
         randomLetter = this.letters[Math.floor(Math.random() * 25) + 0]
       }
 
-      this.findLetter(randomLetter)
+      if ((this.foundLettersPositions.length + 2) < this.hiddenWord.length || this.checkWolfram === true) {
+        this.findLetter(randomLetter)
+      } else {
+        this.checkWolfram = true
+        this.loadingDialog = true
+        await this.fetchWolframApi(this.hiddenWord)
+      }
 
       return new Promise(resolve => {
         setTimeout(() => {
@@ -121,6 +129,7 @@ export default {
         }, 400)
       })
     }
+
   },
   beforeMount () {
     // fill the hidden word with spaces

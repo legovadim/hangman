@@ -53,7 +53,7 @@
           </v-card>
         </v-dialog>
         <v-dialog v-model="loadingDialog" persistent max-width="100">
-          <v-card>
+          <v-card class="overflow-hidden">
             <v-card-text>
                 <v-progress-circular indeterminate :size="70" :width="7" color="primary"></v-progress-circular>
             </v-card-text>
@@ -70,12 +70,6 @@ export default {
   data () {
     return {
       gameType: 'pvc',
-      clickedLetters: [],
-      hiddenLetters: '',
-      hiddenWord: '**********',
-      foundLettersPositions: [],
-      lifes: 10,
-      hangmanState: 0,
       dialog: false,
       gameResultTitle: {
         'win': 'You won the game',
@@ -84,9 +78,7 @@ export default {
       gameResultBody: {
         'win': 'You are clever!',
         'lose': 'Don`t cry and try again'
-      },
-      gameResult: 'win',
-      loadingDialog: false
+      }
 
     }
   },

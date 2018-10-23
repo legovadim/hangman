@@ -6,8 +6,19 @@ Vue.mixin({
       letters: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
         'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
         't', 'u', 'v', 'w', 'x', 'y', 'z'],
+      hiddenLetters: '',
+      hiddenWord: '********',
+      foundLettersPositions: [],
+      lifes: 10,
+      hangmanState: 0,
+      clickedLetters: [],
+      gameResult: '',
+      usersWord: '',
       hiddenWordList: ['knowledgeable', 'license', 'lush', 'move', 'squealing', 'flimsy', 'vengeful', 'science', 'reward', 'pickle', 'terrific', 'hot'],
-      requestWordUrl: 'https://random-word-api.herokuapp.com/word?key='
+      requestWordUrl: 'https://random-word-api.herokuapp.com/word?number=1&key=',
+      wolframUrl: 'https://api.wolframalpha.com/v2/query?appid=LXUQPT-82TT59J9EP&output=json&input=',
+      loadingDialog: false,
+      plaintext: 'a | i | t | c | h\nb | a | t | c | h\nb | o | t | c | h\nc | a | t | c | h\nc | u | t | c | h\nd | i | t | c | h\nd | u | t | c | h\nf | e | t | c | h\nf | i | t | c | h\nh | a | t | c | h\nh | i | t | c | h\nh | u | t | c | h\nk | e | t | c | h\nk | u | t | c | h\nl | a | t | c | h\nl | e | t | c | h\nm | a | t | c | h\nM | i | t | c | h\nn | a | t | c | h\nn | o | t | c | h\np | a | t | c | h\np | i | t | c | h\nr | a | t | c | h\nr | e | t | c | h\n⋮ | | | | \n(28 words)'
 
     }
   },
@@ -38,9 +49,10 @@ Vue.mixin({
           if (this.hiddenWord.length <= this.foundLettersPositions.length) { // Player Wins
             this.gameResult = 'win'
             this.dialog = true
-            console.log('WIN')
           }
         }
+
+        return true
       } else { // Player Loses
         this.lifes--
         this.hangmanState++
@@ -48,11 +60,55 @@ Vue.mixin({
         if (this.lifes === 0) {
           this.gameResult = 'lose'
           this.dialog = true
-          console.log('LOSE')
         }
+
+        return false
       }
     },
+    async fetchWolframApi (hiddenWord) {
+      return new Promise(resolve => {
+        Vue.axios.get('https://cors-anywhere.herokuapp.com/' + this.wolframUrl + this.hiddenLetters).then((response) => {
+          let targetLetter
+          let array = response.data.queryresult.pods[1].subpods[0].plaintext.split('\n')
 
+          if (array.length > 0) {
+            let wolframArray = []
+
+              // clean response data
+            for (let i = 0; i < array.length; i++) {
+              wolframArray.push(array[i].match(/[A-Za-z0-9]+/g))
+            }
+
+                // check every returned array from wolframalpha
+            for (let id = 0; id < wolframArray.length; id++) {
+              let lettersToCheck = wolframArray[id]
+
+              let sortedLettersPositions = this.foundLettersPositions.sort((a, b) => b - a)
+
+                // filter letters we already know
+              for (let i = 0; i < sortedLettersPositions.length; i++) {
+                lettersToCheck = this.arraySplice(lettersToCheck, sortedLettersPositions[i])
+              }
+
+                // check left letters
+              for (let i = 0; i < lettersToCheck.length; i++) {
+                targetLetter = lettersToCheck[i].toLowerCase()
+
+                // check that game is not over and that we didn't click that letter
+                if (this.checkLetter(targetLetter) === '' || this.gameResult !== '') break
+
+                if (!this.findLetter(targetLetter)) break
+              }
+
+              if (this.gameResult !== '') break
+            }
+          }
+
+          resolve(true)
+          this.loadingDialog = false
+        })
+      })
+    },
     fetchTheWord () {
       this.loadingDialog = true
       return new Promise(resolve => {
@@ -60,7 +116,6 @@ Vue.mixin({
           Vue.axios.get(this.requestWordUrl + response.data + '&number=1').then((response) => {
             this.hiddenWord = response.data[0]
             resolve(true)
-            console.log(this.hiddenWord)
             this.loadingDialog = false
           })
         })
