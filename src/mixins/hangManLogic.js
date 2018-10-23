@@ -30,6 +30,7 @@ Vue.mixin({
   methods: {
     findLetter (letter) {
         // find all letters in word
+
       let letterPosition = this.allIndexOf(this.hiddenWord, letter)
 
       if (this.gameType === 'pvc') this.$refs['letter_' + letter].color = 'warn'
@@ -42,7 +43,7 @@ Vue.mixin({
           // find ALL same letters
         for (let i = 0; i < letterPosition.length; i++) {
             // add found letter
-          this.foundLettersPositions.push(letterPosition)
+          this.foundLettersPositions.push(letterPosition[i])
 
           this.hiddenLetters = this.stringSplice(this.hiddenLetters, letterPosition[i], 1, letter)
 
@@ -70,6 +71,7 @@ Vue.mixin({
         Vue.axios.get('https://cors-anywhere.herokuapp.com/' + this.wolframUrl + this.hiddenLetters).then((response) => {
           let targetLetter
           let array = response.data.queryresult.pods[1].subpods[0].plaintext.split('\n')
+          let firstLetter = ''
 
           if (array.length > 0) {
             let wolframArray = []
@@ -79,11 +81,11 @@ Vue.mixin({
               wolframArray.push(array[i].match(/[A-Za-z0-9]+/g))
             }
 
-                // check every returned array from wolframalpha
-            for (let id = 0; id < wolframArray.length; id++) {
-              let lettersToCheck = wolframArray[id]
+            let sortedLettersPositions = this.foundLettersPositions.sort((a, b) => b - a)
 
-              let sortedLettersPositions = this.foundLettersPositions.sort((a, b) => b - a)
+                // check every returned array from wolframalpha
+            for (let id = 0; id < wolframArray.length - 1; id++) {
+              let lettersToCheck = wolframArray[id]
 
                 // filter letters we already know
               for (let i = 0; i < sortedLettersPositions.length; i++) {
@@ -94,10 +96,14 @@ Vue.mixin({
               for (let i = 0; i < lettersToCheck.length; i++) {
                 targetLetter = lettersToCheck[i].toLowerCase()
 
-                // check that game is not over and that we didn't click that letter
-                if (this.checkLetter(targetLetter) === '' || this.gameResult !== '') break
+                // break if we found letter from request
 
-                if (!this.findLetter(targetLetter)) break
+                if (firstLetter !== targetLetter) {
+                  // check that game is not over and that we didn't click that letter
+                  if ((this.checkLetter(targetLetter) === '') || this.gameResult !== '') break
+                  if (!this.findLetter(targetLetter)) break
+                  if (i === 0) firstLetter = targetLetter
+                }
               }
 
               if (this.gameResult !== '') break
